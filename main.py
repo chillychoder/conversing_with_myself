@@ -1,18 +1,22 @@
 import tkinter as tk
-import soundfile as sf
 import sounddevice as sd
+import soundfile as sf
 import os
 import math
 
+print(sd.query_devices())
+
 def play_sound(path, device_index):
-    data, samplerate = sf.read(path)
-    sd.play(data, samplerate, device=device_index)
+    try:
+        data, samplerate = sf.read(path)
+        sd.play(data, samplerate, device=device_index)
+    except Exception as e:
+        print(f"Error playing {path}: {e}")
 
 # INDEX 13 Voicemeeter Input
 # INDEX 61 for Mixer to Discord mic
 
-INPUT_INDEX = 13
-MIXER_OUT_INDEX = 61
+INPUT_INDEX = 56
 
 sound_folder = "sounds"
 sounds = []
@@ -76,14 +80,14 @@ for idx, filepath in enumerate(sounds):
     display_name = os.path.splitext(os.path.basename(filepath))[0]
     MAX_LEN = 12
     if len(display_name) > MAX_LEN:
-        display_name= display_name[MAX_LEN] + "..."
+        display_name= display_name[:MAX_LEN] + "..."
     btn = tk.Button(
         btn_grid_frame, 
         text=display_name,
         width=12,
         height=6,
         wraplength=80, 
-        command=lambda path=filepath: [play_sound(path, INPUT_INDEX), play_sound(path, MIXER_OUT_INDEX)])
+        command=lambda path=filepath: play_sound(path, INPUT_INDEX))
     btn.grid(row=row, column=col, sticky= "nsew", padx=3, pady=3) 
 if total_sounds == 0:
     no_sound_lbl = tk.Label(btn_grid_frame, text= "No sounds", fg="grey")
